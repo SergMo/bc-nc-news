@@ -44,7 +44,6 @@ describe('GET /api', () => {
 		return request(app)
 			.get('/api')
 			.then((response) => {
-				console.log(response.body);
 				expect(response.body).toEqual(endpoints)
 			})
 	})
