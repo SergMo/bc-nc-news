@@ -28,7 +28,8 @@ describe('GET /api/topics', () => {
 			.get('/api/topics')
 			.then((response) => {
 				const topics = response.body.topics;
-				console.log(topics);
+				expect(topics).toEqual(expect.any(Array));
+				expect(topics.length).toBeGreaterThan(0);
 				topics.forEach((topic) => {
 					expect(topic).toHaveProperty('slug');
 					expect(topic).toHaveProperty('description');
