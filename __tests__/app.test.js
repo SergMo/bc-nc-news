@@ -85,3 +85,40 @@ describe('GET /api/articles/:article_id', () => {
 			});
 	});
 });
+
+describe('GET /api/articles', () => {
+	test('GET:200 should return an array of articles', () => {
+		return request(app)
+			.get('/api/articles')
+			.expect(200)
+			.then((response) => {
+				const articles = response.body.articles;
+				console.log(articles[1]);
+				expect(articles).toEqual(expect.any(Array));
+				expect(articles.length).toBeGreaterThan(0);
+
+				articles.forEach((article) => {
+					expect(article).toHaveProperty('author');
+					expect(article).toHaveProperty('title');
+					expect(article).toHaveProperty('article_id');
+					expect(article).toHaveProperty('topic');
+					expect(article).toHaveProperty('created_at');
+					expect(article).toHaveProperty('votes');
+					expect(article).toHaveProperty('article_img_url');
+					expect(article).toHaveProperty('comment_count');
+					expect(article).not.toHaveProperty('body');
+				})
+			})
+	});
+	test('articles should be sorted by date in descending order', () => {
+		return request(app)
+			.get('/api/articles')
+			.expect(200)
+			.then((response) => {
+				const articles = response.body.articles;
+				const dates = articles.map((article) => article.created_at);
+				const sortDates = [...dates].sort((a, b) => new Date(b) - new Date(a));
+				expect(dates).toEqual(sortDates);
+			})
+	})
+});
