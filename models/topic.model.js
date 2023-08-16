@@ -7,3 +7,4 @@ exports.selectAllTopics = () => {
 			return topics.rows;
 		});
 };
+
