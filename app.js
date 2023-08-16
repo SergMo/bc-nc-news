@@ -11,7 +11,6 @@ app.get('/api/topics', getAllTopics);
 app.get('/api/articles/:article_id', getArticleById);
 
 app.use((err, req, res, next) => {
-	console.log('Error: ', err);
 
 	if (err.message === 'Article not found') {
 		res.status(404).send({ message: err.message });
