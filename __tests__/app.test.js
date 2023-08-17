@@ -10,6 +10,7 @@ beforeEach(() => seed(data));
 afterAll(() => db.end());
 
 describe('GET /api/topics', () => {
+
 	test('endpoint should return 200', () => {
 		return request(app)
 			.get('/api/topics')
@@ -17,6 +18,7 @@ describe('GET /api/topics', () => {
 				expect(response.status).toBe(200);
 			});
 	});
+
 	test('endpoint should return an array', () => {
 		return request(app)
 			.get('/api/topics')
@@ -41,6 +43,7 @@ describe('GET /api/topics', () => {
 });
 
 describe('GET /api', () => {
+
 	test('endpoint should return documentation of all available endpoints', () => {
 		return request(app)
 			.get('/api')
@@ -51,6 +54,7 @@ describe('GET /api', () => {
 });
 
 describe('GET /api/articles/:article_id', () => {
+
 	test('GET:200 send an article by its ID', () => {
 		return request(app)
 			.get('/api/articles/1')
@@ -69,6 +73,7 @@ describe('GET /api/articles/:article_id', () => {
 				});
 			});
 	});
+
 	test('GET:404 should handle article not found', () => {
 		return request(app)
 			.get('/api/articles/999')
@@ -77,6 +82,7 @@ describe('GET /api/articles/:article_id', () => {
 				expect(response.body.message).toBe('Article not found');
 			})
 	});
+
 	test('GET:400 should handle invalid article_id format', () => {
 		return request(app)
 			.get('/api/articles/not-an-article')
@@ -88,6 +94,7 @@ describe('GET /api/articles/:article_id', () => {
 });
 
 describe('GET /api/articles', () => {
+
 	test('GET:200 should return an array of articles', () => {
 		return request(app)
 			.get('/api/articles')
@@ -113,6 +120,7 @@ describe('GET /api/articles', () => {
 				)
 			})
 	});
+
 	test('articles should be sorted by date in descending order', () => {
 		return request(app)
 			.get('/api/articles')
@@ -123,3 +131,57 @@ describe('GET /api/articles', () => {
 			})
 	})
 });
+
+describe('GET /api/articles/:article_id/comments', () => {
+
+	test('GET:200 should return an array of comments for the given article_id', () => {
+		return request(app)
+			.get('/api/articles/1/comments')
+			.expect(200)
+			.then((response) => {
+				const comments = response.body.comments;
+				expect(comments).toEqual(expect.any(Array));
+
+				expect(comments).toEqual(
+					expect.arrayContaining([
+						expect.objectContaining({
+							comment_id: expect.any(Number),
+							body: expect.any(String),
+							author: expect.any(String),
+							created_at: expect.any(String),
+							votes: expect.any(Number),
+							article_id: expect.any(Number),
+						})
+					])
+				)
+			})
+	});
+	test('comments should be served with the most recent comments first', () => {
+		return request(app)
+			.get('/api/articles/1/comments')
+			.expect(200)
+			.then((response) => {
+				const comments = response.body.comments;
+				console.log(comments);
+				expect(comments).toBeSortedBy('created_at', { descending: true });
+			});
+	});
+
+	test('GET:400 should handle invalid article_id format', () => {
+		return request(app)
+			.get('/api/articles/not-an-article/comments')
+			.expect(400)
+			.then((response) => {
+				expect(response.body.message).toBe('Invalid article_id');
+			});
+	});
+
+	test('GET:404 should handle article not found', () => {
+		return request(app)
+			.get('/api/articles/999/comments')
+			.expect(404)
+			.then((response) => {
+				expect(response.body.message).toBe('Article not found');
+			});
+	});
+})

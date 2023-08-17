@@ -3,13 +3,14 @@ const app = express();
 const { getAllTopics } = require('./controllers/topic.controller');
 const { getApiDocumentation } = require('./controllers/api.controller');
 const { getArticleById, getAllArticles } = require('./controllers/article.controller');
-
+const { getCommentsByArticleId } = require('./controllers/comment.controller');
 
 
 app.get('/api', getApiDocumentation);
 app.get('/api/topics', getAllTopics);
 app.get('/api/articles/:article_id', getArticleById);
 app.get('/api/articles', getAllArticles);
+app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
 
 app.use((err, req, res, next) => {
 	if (err.message === 'Article not found') {
