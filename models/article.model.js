@@ -13,12 +13,26 @@ exports.selectArticleById = (article_id) => {
 
 exports.selectArticles = () => {
 	return db
-		.query('SELECT article_id, title, author, topic, created_at, votes, article_img_url FROM articles ORDER BY created_at DESC')
+		.query(
+			'SELECT article_id, title, author, topic, created_at, votes, article_img_url FROM articles ORDER BY created_at DESC;')
 		.then((result) => result.rows);
 }
 
-exports.countArticleComments = (article_id) => {
+exports.countArticleComments = () => {
 	return db
-		.query('SELECT COUNT(*) FROM comments WHERE article_id = $1', [article_id])
-		.then((result) => parseInt(result.rows[0].count))
-}
+		.query(
+			`
+		SELECT articles.article_id, COUNT(comments.comment_id) AS comment_count
+		FROM articles
+		LEFT JOIN comments ON articles.article_id = comments.article_id
+		GROUP by articles.article_id;
+		`
+		)
+		.then((result) => {
+			const commentCounts = {};
+			result.rows.forEach((row) => {
+				commentCounts[row.article_id] = row.comment_count;
+			})
+			return commentCounts;
+		});
+};

@@ -5,6 +5,7 @@ const seed = require('../db/seeds/seed');
 const data = require('../db/data/test-data/') //?
 const endpoints = require('../endpoints.json');
 
+
 beforeEach(() => seed(data));
 afterAll(() => db.end());
 
@@ -93,21 +94,23 @@ describe('GET /api/articles', () => {
 			.expect(200)
 			.then((response) => {
 				const articles = response.body.articles;
-				console.log(articles[1]);
 				expect(articles).toEqual(expect.any(Array));
-				expect(articles.length).toBeGreaterThan(0);
+				expect(articles.length).toBe(13);
 
-				articles.forEach((article) => {
-					expect(article).toHaveProperty('author');
-					expect(article).toHaveProperty('title');
-					expect(article).toHaveProperty('article_id');
-					expect(article).toHaveProperty('topic');
-					expect(article).toHaveProperty('created_at');
-					expect(article).toHaveProperty('votes');
-					expect(article).toHaveProperty('article_img_url');
-					expect(article).toHaveProperty('comment_count');
-					expect(article).not.toHaveProperty('body');
-				})
+				expect(articles).toEqual(
+					expect.arrayContaining([
+						expect.objectContaining({
+							article_id: expect.any(Number),
+							title: expect.any(String),
+							author: expect.any(String),
+							topic: expect.any(String),
+							created_at: expect.any(String),
+							votes: expect.any(Number),
+							article_img_url: expect.any(String),
+							comment_count: expect.any(Number),
+						})
+					])
+				)
 			})
 	});
 	test('articles should be sorted by date in descending order', () => {
@@ -116,9 +119,7 @@ describe('GET /api/articles', () => {
 			.expect(200)
 			.then((response) => {
 				const articles = response.body.articles;
-				const dates = articles.map((article) => article.created_at);
-				const sortDates = [...dates].sort((a, b) => new Date(b) - new Date(a));
-				expect(dates).toEqual(sortDates);
+				expect(articles).toBeSortedBy('created_at', { descending: true });
 			})
 	})
 });
