@@ -13,11 +13,5 @@ exports.getCommentsByArticleId = (req, res, next) => {
 		.then(([article, comments]) => {
 			res.status(200).send({ comments });
 		})
-		.catch((err) => {
-			if (err.message === 'Article not found') {
-				res.status(404).send({ message: err.message });
-			} else {
-				next(err);
-			}
-		})
+		.catch(next)
 }

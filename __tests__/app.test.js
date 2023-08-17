@@ -141,6 +141,7 @@ describe('GET /api/articles/:article_id/comments', () => {
 			.then((response) => {
 				const comments = response.body.comments;
 				expect(comments).toEqual(expect.any(Array));
+				expect(comments.length).toBe(11);
 
 				expect(comments).toEqual(
 					expect.arrayContaining([
@@ -156,13 +157,23 @@ describe('GET /api/articles/:article_id/comments', () => {
 				)
 			})
 	});
+
+	test('GET:200 should return an empty array if article has no comments', () => {
+		return request(app)
+			.get('/api/articles/2/comments')
+			.expect(200)
+			.then((response) => {
+				const comments = response.body.comments;
+				expect(comments).toEqual([]);
+			});
+	});
+
 	test('comments should be served with the most recent comments first', () => {
 		return request(app)
 			.get('/api/articles/1/comments')
 			.expect(200)
 			.then((response) => {
 				const comments = response.body.comments;
-				console.log(comments);
 				expect(comments).toBeSortedBy('created_at', { descending: true });
 			});
 	});
