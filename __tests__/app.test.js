@@ -5,6 +5,7 @@ const seed = require('../db/seeds/seed');
 const data = require('../db/data/test-data/') //?
 const endpoints = require('../endpoints.json');
 
+
 beforeEach(() => seed(data));
 afterAll(() => db.end());
 
@@ -84,4 +85,41 @@ describe('GET /api/articles/:article_id', () => {
 				expect(response.body.message).toBe('Invalid article_id');
 			});
 	});
+});
+
+describe('GET /api/articles', () => {
+	test('GET:200 should return an array of articles', () => {
+		return request(app)
+			.get('/api/articles')
+			.expect(200)
+			.then((response) => {
+				const articles = response.body.articles;
+				expect(articles).toEqual(expect.any(Array));
+				expect(articles.length).toBe(13);
+
+				expect(articles).toEqual(
+					expect.arrayContaining([
+						expect.objectContaining({
+							article_id: expect.any(Number),
+							title: expect.any(String),
+							author: expect.any(String),
+							topic: expect.any(String),
+							created_at: expect.any(String),
+							votes: expect.any(Number),
+							article_img_url: expect.any(String),
+							comment_count: expect.any(Number),
+						})
+					])
+				)
+			})
+	});
+	test('articles should be sorted by date in descending order', () => {
+		return request(app)
+			.get('/api/articles')
+			.expect(200)
+			.then((response) => {
+				const articles = response.body.articles;
+				expect(articles).toBeSortedBy('created_at', { descending: true });
+			})
+	})
 });
