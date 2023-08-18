@@ -195,4 +195,110 @@ describe('GET /api/articles/:article_id/comments', () => {
 				expect(response.body.message).toBe('Article not found');
 			});
 	});
+});
+
+describe('POST /api/articles/:article_id/comments', () => {
+
+	test('POST:201 should add a comment to the db for the given article_id', () => {
+		const newComment = {
+			username: 'butter_bridge',
+			body: 'test comment'
+		};
+
+		return request(app)
+			.post('/api/articles/1/comments')
+			.send(newComment)
+			.expect(201)
+			.then((response) => {
+				console.log(response.body);
+				expect(response.body.comment).toEqual({
+					comment_id: expect.any(Number),
+					body: 'test comment',
+					votes: 0,
+					author: 'butter_bridge',
+					article_id: 1,
+					created_at: expect.any(String),
+				})
+			})
+	});
+
+	test('POST:404 should handle article not found', () => {
+		const newComment = {
+			username: 'butter_bridge',
+			body: 'test comment'
+		};
+
+		return request(app)
+			.post('/api/articles/999/comments')
+			.send(newComment)
+			.expect(404)
+			.then((response) => {
+				expect(response.body.message).toBe('Article not found');
+			});
+	});
+
+	test('POST:400 should handle missing required fields', () => {
+		const incompleteComment = {
+			username: 'butter_bridge',
+		};
+
+		return request(app)
+			.post('/api/articles/1/comments')
+			.send(incompleteComment)
+			.expect(400)
+			.then((response) => {
+				expect(response.body.message).toBe('Bad Request');
+			});
+	});
+
+	test('POST:400 should handle missing username', () => {
+		const newComment = {
+			body: 'Test comment',
+		};
+
+		return request(app)
+			.post('/api/articles/1/comments')
+			.send(newComment)
+			.expect(400)
+			.then((response) => {
+				expect(response.body.message).toBe('Bad Request');
+			});
+	});
+
+	test('POST:400 should handle invalid article_id', () => {
+		const newComment = {
+			username: 'butter_bridge',
+			body: 'Test comment',
+		};
+
+		return request(app)
+			.post('/api/articles/banana/comments')
+			.send(newComment)
+			.expect(400)
+			.then((response) => {
+				expect(response.body.message).toBe('Invalid article_id');
+			});
+	});
+	test('POST:201 should ignore extra properties in the body', () => {
+		const newComment = {
+			username: 'butter_bridge',
+			body: 'Test comment',
+			extraProp: 'ignored extra property',
+		};
+
+		return request(app)
+			.post('/api/articles/1/comments')
+			.send(newComment)
+			.expect(201)
+			.then((response) => {
+				expect(response.body.comment).toEqual({
+					comment_id: expect.any(Number),
+					body: 'Test comment',
+					votes: 0,
+					author: 'butter_bridge',
+					article_id: 1,
+					created_at: expect.any(String),
+				});
+			});
+	});
 })
