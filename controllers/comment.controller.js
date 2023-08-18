@@ -24,17 +24,11 @@ exports.postCommentByArticleId = (req, res, next) => {
 	}
 
 	selectArticleById(article_id)
-		.then((article) => {
-			if (!article) {
-				req.status(404).send({ message: err.message });
-			} else {
-				insertComment(article_id, username, body)
-					.then((comment) => {
-						res.status(201).send({ comment })
-					})
-					.catch(next);
-			}
+		.then(() => {
+			insertComment(article_id, username, body)
+				.then((comment) => {
+					res.status(201).send({ comment })
+				})
 		})
 		.catch(next)
-
 }
