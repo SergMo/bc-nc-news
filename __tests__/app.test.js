@@ -210,7 +210,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 			.send(newComment)
 			.expect(201)
 			.then((response) => {
-				console.log(response.body);
+
 				expect(response.body.comment).toEqual({
 					comment_id: expect.any(Number),
 					body: 'test comment',
@@ -299,6 +299,89 @@ describe('POST /api/articles/:article_id/comments', () => {
 					article_id: 1,
 					created_at: expect.any(String),
 				});
+			});
+	});
+});
+
+describe('PATCH /api/articles/:article_id', () => {
+	test('PATCH:200 should update the votes of the given article', () => {
+		const newVote = { inc_votes: 10 };
+
+		return request(app)
+			.patch('/api/articles/1')
+			.send(newVote)
+			.expect(200)
+			.then((response) => {
+				expect(response.body.article.votes).toBe(110);
+			});
+	})
+	test('PATCH:200 should decrement the votes of the given article', () => {
+		const newVote = { inc_votes: -100 };
+
+		return request(app)
+			.patch('/api/articles/2')
+			.send(newVote)
+			.expect(200)
+			.then((response) => {
+				expect(response.body.article.votes).toBe(-100);
+			});
+	});
+
+	test('PATCH:200 should respond with the updated article', () => {
+		const newVote = { inc_votes: 5 };
+
+		return request(app)
+			.patch('/api/articles/3')
+			.send(newVote)
+			.expect(200)
+			.then((response) => {
+				const { article } = response.body;
+				expect(article).toEqual({
+					article_id: 3,
+					title: "Eight pug gifs that remind me of mitch",
+					topic: "mitch",
+					author: "icellusedkars",
+					body: "some gifs",
+					created_at: '2020-11-03T09:12:00.000Z',
+					votes: 5,
+					article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+				});
+				expect(article.votes).toBe(5);
+			});
+	});
+
+	test('PATCH:400 should handle invalid article_id', () => {
+		const newVote = { inc_votes: 10 };
+
+		return request(app)
+			.patch('/api/articles/banana')
+			.send(newVote)
+			.expect(400)
+			.then((response) => {
+				expect(response.body.message).toBe('Invalid article_id');
+			});
+	});
+
+	test('PATCH:400 should handle missing inc_votes', () => {
+		const invalidVote = { votes: 10 };
+
+		return request(app)
+			.patch('/api/articles/1')
+			.send(invalidVote)
+			.expect(400)
+			.then((response) => {
+				expect(response.body.message).toBe('inc_votes is missing or invalid');
+			});
+	});
+	test('PATCH:400 should handle if inc_votes is not a number', () => {
+		const invalidVote = { inc_votes: 'not-a-number' };
+
+		return request(app)
+			.patch('/api/articles/1')
+			.send(invalidVote)
+			.expect(400)
+			.then((response) => {
+				expect(response.body.message).toBe('inc_votes must be a number');
 			});
 	});
 })
