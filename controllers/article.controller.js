@@ -1,4 +1,9 @@
-const { selectArticleById, selectArticles, countArticleComments } = require('../models/article.model');
+const {
+	selectArticleById,
+	selectArticles,
+	countArticleComments,
+	updateArticleVotes
+} = require('../models/article.model');
 
 
 exports.getArticleById = (req, res, next) => {
@@ -28,6 +33,17 @@ exports.updateArticleById = (req, res, next) => {
 	const { article_id } = req.params;
 	const { inc_votes } = req.body;
 
+	if (inc_votes === undefined) {
+		return res.status(400).send({ message: 'inc_votes is missing or invalid' });
+	}
+	if (isNaN(inc_votes)) {
+		return res.status(400).send({ message: 'inc_votes must be a number' });
+	}
 
+	updateArticleVotes(article_id, inc_votes)
+		.then((updateArticle) => {
+			res.status(200).send({ article: updateArticle })
+		})
+		.catch(next)
 }
 
