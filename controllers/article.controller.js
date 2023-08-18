@@ -21,7 +21,13 @@ exports.getAllArticles = (req, res, next) => {
 			});
 			res.status(200).send({ articles: articlesWithCount });
 		})
-
 		.catch(next);
 };
+
+exports.updateArticleById = (req, res, next) => {
+	const { article_id } = req.params;
+	const { inc_votes } = req.body;
+
+
+}
 
