@@ -67,5 +67,10 @@
 				}
 			]
 		}
+	},
+	"DELETE /api/comments/:comment_id": {
+		"description": "delete the given comment by comment_id",
+		"queries": [],
+		"examplResponse": {}
 	}
 }

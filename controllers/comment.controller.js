@@ -1,4 +1,8 @@
-const { selectCommentsByArticleId, insertComment } = require('../models/comment.model');
+const {
+	selectCommentsByArticleId,
+	insertComment,
+	removeCommentById
+} = require('../models/comment.model');
 const { selectArticleById } = require('../models/article.model');
 
 
@@ -31,4 +35,16 @@ exports.postCommentByArticleId = (req, res, next) => {
 				})
 		})
 		.catch(next)
+}
+
+exports.deleteCommentById = (req, res, next) => {
+	const { comment_id } = req.params;
+	removeCommentById(comment_id)
+		.then((deletedCount) => {
+			if (!deletedCount) {
+				res.status(404).send({ message: 'Comment not found' })
+			}
+			res.status(204).send();
+		})
+		.catch(next);
 }

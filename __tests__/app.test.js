@@ -2,7 +2,7 @@ const app = require('../app');
 const request = require('supertest');
 const db = require('../db/connection');
 const seed = require('../db/seeds/seed');
-const data = require('../db/data/test-data/') //?
+const data = require('../db/data/test-data/');
 const endpoints = require('../endpoints.json');
 
 
@@ -83,12 +83,12 @@ describe('GET /api/articles/:article_id', () => {
 			})
 	});
 
-	test('GET:400 should handle invalid article_id format', () => {
+	test('GET:400 should handle invalid article_id', () => {
 		return request(app)
 			.get('/api/articles/not-an-article')
 			.expect(400)
 			.then((response) => {
-				expect(response.body.message).toBe('Invalid article_id');
+				expect(response.body.message).toBe('Invalid id');
 			});
 	});
 });
@@ -183,7 +183,7 @@ describe('GET /api/articles/:article_id/comments', () => {
 			.get('/api/articles/not-an-article/comments')
 			.expect(400)
 			.then((response) => {
-				expect(response.body.message).toBe('Invalid article_id');
+				expect(response.body.message).toBe('Invalid id');
 			});
 	});
 
@@ -276,7 +276,7 @@ describe('POST /api/articles/:article_id/comments', () => {
 			.send(newComment)
 			.expect(400)
 			.then((response) => {
-				expect(response.body.message).toBe('Invalid article_id');
+				expect(response.body.message).toBe('Invalid id');
 			});
 	});
 	test('POST:201 should ignore extra properties in the body', () => {
@@ -358,7 +358,7 @@ describe('PATCH /api/articles/:article_id', () => {
 			.send(newVote)
 			.expect(400)
 			.then((response) => {
-				expect(response.body.message).toBe('Invalid article_id');
+				expect(response.body.message).toBe('Invalid id');
 			});
 	});
 
@@ -373,6 +373,7 @@ describe('PATCH /api/articles/:article_id', () => {
 				expect(response.body.message).toBe('inc_votes is missing or invalid');
 			});
 	});
+
 	test('PATCH:400 should handle if inc_votes is not a number', () => {
 		const invalidVote = { inc_votes: 'not-a-number' };
 
@@ -384,4 +385,31 @@ describe('PATCH /api/articles/:article_id', () => {
 				expect(response.body.message).toBe('inc_votes must be a number');
 			});
 	});
+});
+
+describe('DELETE /api/comments/:comment_id', () => {
+	test('DELETE:204 should return the given comment', () => {
+		return request(app)
+			.delete('/api/comments/1')
+			.expect(204)
+	});
+
+	test('DELETE:404 should handle the situation when the comment does not exist', () => {
+		return request(app)
+			.delete('/api/comments/999')
+			.expect(404)
+			.then((response) => {
+				expect(response.body.message).toBe('Comment not found');
+			});
+	});
+
+	test('DELETE:400 should handle invalid comment_id', () => {
+		return request(app)
+			.delete('/api/comments/invalid_id')
+			.expect(400)
+			.then((response) => {
+				expect(response.body.message).toBe('Invalid id')
+			});
+	});
 })
+
