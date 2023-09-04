@@ -1,11 +1,22 @@
 const express = require('express');
+const cors = require('cors');
 
 const { getAllTopics } = require('./controllers/topic.controller');
 const { getApiDocumentation } = require('./controllers/api.controller');
 const { getArticleById, getAllArticles, updateArticleById } = require('./controllers/article.controller');
 const { getCommentsByArticleId, postCommentByArticleId, deleteCommentById } = require('./controllers/comment.controller');
 
+const {
+	pathError,
+	generalErrors,
+	Error400,
+	Error404,
+	Error500
+} = require('./errors');
+
 const app = express();
+
+app.use(cors());
 app.use(express.json());
 
 app.get('/api', getApiDocumentation);
